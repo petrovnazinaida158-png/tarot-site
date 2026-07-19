@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Бесплатный мини-расклад — Зинаида Петровна</title>
+  <meta name="description" content="Задайте один вопрос и получите бесплатный мини-расклад Таро от Зинаиды Петровны." />
+
+  <style>
+    :root{
+      --bg:#fbf7f1;--card:#ffffff;--gold:#c79a46;--gold2:#e8cf9e;
+      --text:#3f342d;--muted:#776b63;--line:#eadfce;
+      --accent:#eee4f4;--accentText:#66506f;--error:#9f3f3f
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:linear-gradient(180deg,#fffdf9 0%,#f9f3ea 52%,#f4ecf7 100%);
+      color:var(--text);line-height:1.55
+    }
+    .wrap{width:min(920px,92%);margin:auto}
+    header{padding:54px 0 26px;text-align:center}
+    .eyebrow{color:var(--gold);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem}
+    h1{font-family:Georgia,serif;font-size:clamp(2.15rem,7vw,4.35rem);line-height:1.07;margin:.45rem 0 1rem;color:#4b3d34}
+    .lead{max-width:680px;margin:auto;color:var(--muted);font-size:1.08rem}
+    .card{
+      background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:26px;
+      padding:clamp(22px,5vw,42px);box-shadow:0 24px 70px rgba(95,70,44,.12);
+      margin:28px auto 50px
+    }
+    form{display:grid;gap:16px}
+    label{font-weight:700;display:block;margin-bottom:7px}
+    input,textarea,select{
+      width:100%;border:1px solid var(--line);background:#fffdfa;color:var(--text);
+      border-radius:14px;padding:14px 15px;font:inherit;outline:none
+    }
+    input:focus,textarea:focus,select:focus{
+      border-color:var(--gold);box-shadow:0 0 0 3px rgba(199,154,70,.13)
+    }
+    textarea{min-height:130px;resize:vertical}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .hint{font-size:.85rem;color:var(--muted);margin-top:6px}
+    .person-box{
+      display:none;background:#fcf8fd;border:1px solid #e7dced;border-radius:18px;
+      padding:18px;margin-top:2px
+    }
+    .person-box.visible{display:block}
+    .person-title{font-family:Georgia,serif;font-size:1.25rem;margin:0 0 14px;color:#5e4967}
+    .consent{
+      display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:.9rem;
+      background:#faf5ee;border:1px solid #efe3d3;border-radius:14px;padding:12px
+    }
+    .consent input{width:auto;margin-top:4px}
+    button{
+      border:0;border-radius:16px;padding:16px 20px;font-weight:900;font-size:1rem;
+      color:#3b2d22;background:linear-gradient(135deg,#f8dfaa,#d6aa58);
+      cursor:pointer;box-shadow:0 12px 28px rgba(199,154,70,.22);
+      transition:transform .18s ease,opacity .18s ease
+    }
+    button:hover{transform:translateY(-1px)}
+    button:disabled{opacity:.65;cursor:wait;transform:none}
+    .status{display:none;text-align:center;border-radius:14px;padding:12px;font-weight:700}
+    .status.show{display:block}
+    .status.error{background:#fff0f0;color:var(--error);border:1px solid #f0caca}
+    .telegram{
+      display:block;text-align:center;margin-top:16px;color:var(--accentText);
+      text-decoration:none;font-weight:800;background:var(--accent);
+      border:1px solid #e2d5e8;border-radius:14px;padding:13px
+    }
+    footer{text-align:center;color:#92857d;padding:0 0 32px;font-size:.85rem}
+    .hidden{position:absolute;left:-9999px}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}header{padding-top:38px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="eyebrow">Зинаида Петровна</div>
+      <h1>Бесплатный мини‑расклад<br>на один вопрос 🔮</h1>
+      <p class="lead">Опишите свою ситуацию. Я посмотрю её через символы Таро и подготовлю короткое личное толкование.</p>
+    </header>
+
+    <section class="card">
+      <form id="miniRaskladForm">
+
+        <div class="grid">
+          <div>
+            <label for="name">Ваше имя *</label>
+            <input id="name" name="name" autocomplete="name" required placeholder="Например, Анна" />
+          </div>
+          <div>
+            <label for="birth">Дата рождения или возраст</label>
+            <input id="birth" name="birth" placeholder="Например, 14.03.1990 или 35 лет" />
+            <div class="hint">Необязательно.</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="country">Страна *</label>
+            <input id="country" name="country" autocomplete="country-name" required placeholder="Например, Украина" />
+          </div>
+          <div>
+            <label for="contact">Telegram или WhatsApp *</label>
+            <input id="contact" name="contact" required placeholder="@username или +380…" />
+            <div class="hint">Чтобы Зинаида Петровна могла ответить лично.</div>
+          </div>
+        </div>
+
+        <div>
+          <label for="question">Ваш один главный вопрос *</label>
+          <textarea id="question" name="question" required maxlength="1200" placeholder="Например: что он чувствует ко мне и почему перестал общаться?"></textarea>
+        </div>
+
+        <div>
+          <label for="otherPerson">Вопрос связан с другим человеком? *</label>
+          <select id="otherPerson" name="other_person" required>
+            <option value="">Выберите</option>
+            <option value="Да">Да</option>
+            <option value="Нет">Нет</option>
+          </select>
+        </div>
+
+        <div id="personBox" class="person-box" aria-hidden="true">
+          <p class="person-title">Данные другого человека</p>
+          <div class="grid">
+            <div>
+              <label for="personName">Имя этого человека</label>
+              <input id="personName" name="person_name" placeholder="Например, Сергей" />
+            </div>
+            <div>
+              <label for="personBirth">Его или её дата рождения</label>
+              <input id="personBirth" name="person_birth" placeholder="Если известна" />
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <label for="relation">Кем этот человек вам приходится?</label>
+            <input id="relation" name="relation" placeholder="Например, бывший партнёр, муж, знакомый" />
+          </div>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" required name="consent" value="yes" />
+          <span>Я согласен(на), что расклад носит символический и развлекательный характер и не заменяет медицинскую, юридическую или финансовую помощь.</span>
+        </label>
+
+        <div id="status" class="status" role="alert"></div>
+        <button id="submitButton" type="submit">ПОЛУЧИТЬ БЕСПЛАТНЫЙ МИНИ‑РАСКЛАД</button>
+      </form>
+
+      <a class="telegram" href="https://t.me/gadaniezi" target="_blank" rel="noopener">Или написать Зинаиде Петровне в Telegram →</a>
+    </section>
+
+    <footer>© 2026 Зинаида Петровна. Ваши данные используются только для ответа на обращение.</footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    const form = document.getElementById('miniRaskladForm');
+    const otherPerson = document.getElementById('otherPerson');
+    const personBox = document.getElementById('personBox');
+    const personName = document.getElementById('personName');
+    const submitButton = document.getElementById('submitButton');
+    const statusBox = document.getElementById('status');
+
+    function togglePersonFields() {
+      const visible = otherPerson.value === 'Да';
+      personBox.classList.toggle('visible', visible);
+      personBox.setAttribute('aria-hidden', String(!visible));
+      personName.required = visible;
+
+      if (!visible) {
+        document.getElementById('personName').value = '';
+        document.getElementById('personBirth').value = '';
+        document.getElementById('relation').value = '';
+      }
+    }
+
+    otherPerson.addEventListener('change', togglePersonFields);
+    togglePersonFields();
+
+    emailjs.init({
+      publicKey: 'O9DaYP0Pu9w1NUGfp'
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      statusBox.className = 'status';
+      statusBox.textContent = '';
+      submitButton.disabled = true;
+      submitButton.textContent = 'ОТПРАВЛЯЕМ ВАШ ВОПРОС…';
+
+      try {
+        await emailjs.sendForm(
+          'service_eglrpp8',
+          'template_d65frpc',
+          form
+        );
+
+        window.location.href = 'spasibo.html';
+      } catch (error) {
+        console.error('EmailJS error:', error);
+        statusBox.textContent = 'Не удалось отправить вопрос. Проверьте интернет и попробуйте ещё раз.';
+        statusBox.className = 'status show error';
+        submitButton.disabled = false;
+        submitButton.textContent = 'ПОЛУЧИТЬ БЕСПЛАТНЫЙ МИНИ‑РАСКЛАД';
+      }
+    });
+  </script>
+</body>
+</html>
