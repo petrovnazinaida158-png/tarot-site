@@ -50,11 +50,22 @@
     button:hover {
       background: #c49564;
     }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
     #otherFields {
       display: none;
       background: #f9f9f9;
       padding: 15px;
       border-radius: 5px;
+      margin-top: 10px;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      color: #d4a574;
+      font-weight: bold;
       margin-top: 10px;
     }
   </style>
@@ -98,11 +109,12 @@
     <label style="margin-top: 20px;">
       <input type="checkbox" required>
       <span style="font-weight: normal; font-size: 14px;">
-        Я согласен(на), что расклад носит символический и развлекательный характер и не заменяет медицинскую, юридическую или финансовую помощь.
+        Я согласен(на), что расклад носит символический и развлекательный характер и не заменяет медицинскую, юридическую или финансовую консультацию.
       </span>
     </label>
     
-    <button type="submit"> ПОЛУЧИТЬ БЕСПЛАТНЫЙ МИНИ-РАСКЛАД</button>
+    <button type="submit" id="submitBtn">ПОЛУЧИТЬ БЕСПЛАТНЫЙ МИНИ-РАСКЛАД</button>
+    <div class="loading" id="loading">⏳ Отправка заявки...</div>
   </form>
 
   <script>
@@ -112,54 +124,55 @@
         this.value === 'Да' ? 'block' : 'none';
     });
 
-    // Отправка формы в Telegram
-    document.getElementById('tarotForm').addEventListener('submit', function(e) {
+    // Отправка формы на Netlify функцию
+    document.getElementById('tarotForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      // 
-      const BOT_TOKEN = '8912876631:AAHPXUEjdj9ylLzvffXdb3o81H9Z5MoA66M';
-      const CHAT_ID = '8912876631';  // ✅ Ваш Chat ID уже вставлен!
+      const submitBtn = document.getElementById('submitBtn');
+      const loading = document.getElementById('loading');
       
-      const hasOther = document.getElementById('hasOtherPerson').value;
-      
-      let message = `🔮 *НОВАЯ ЗАЯВКА НА РАСКЛАД*\n\n`;
-      message += `👤 *Имя:* ${document.getElementById('name').value}\n`;
-      message += `📅 *Дата рождения:* ${document.getElementById('birthdate').value || 'не указано'}\n`;
-      message += ` *Страна:* ${document.getElementById('country').value}\n`;
-      message += `📱 *Контакты:* ${document.getElementById('contact').value}\n`;
-      message += `❓ *Вопрос:* ${document.getElementById('question').value}\n`;
-      message += `👥 *Другой человек:* ${hasOther}\n`;
-      
-      if (hasOther === 'Да') {
-        message += `\n🔸 *Имя:* ${document.getElementById('otherName').value || 'не указано'}\n`;
-        message += `📅 *Дата рождения:* ${document.getElementById('otherBirthdate').value || 'не указано'}\n`;
-        message += `🔸 *Кем приходится:* ${document.getElementById('relation').value || 'не указано'}\n`;
-      }
-      
-      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-      
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: message,
-          parse_mode: 'Markdown'
-        })
-      })
-      .then(response => {
+      // Собираем данные
+      const formData = {
+        name: document.getElementById('name').value,
+        birthdate: document.getElementById('birthdate').value,
+        country: document.getElementById('country').value,
+        contact: document.getElementById('contact').value,
+        question: document.getElementById('question').value,
+        hasOtherPerson: document.getElementById('hasOtherPerson').value,
+        otherName: document.getElementById('otherName').value,
+        otherBirthdate: document.getElementById('otherBirthdate').value,
+        relation: document.getElementById('relation').value
+      };
+
+      // Показываем загрузку
+      submitBtn.disabled = true;
+      loading.style.display = 'block';
+
+      try {
+        // Отправляем на Netlify функцию
+        const response = await fetch('/.netlify/functions/send-telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
         if (response.ok) {
           alert('✅ Заявка отправлена! Я свяжусь с вами в ближайшее время.');
           document.getElementById('tarotForm').reset();
           document.getElementById('otherFields').style.display = 'none';
           window.location.href = 'spasibo.html';
         } else {
-          alert('❌ Ошибка отправки. Проверьте токен бота и попробуйте ещё раз.');
+          alert('❌ Ошибка: ' + (result.error || 'Не удалось отправить заявку'));
         }
-      })
-      .catch(error => {
-        alert('❌ Ошибка сети. Проверьте интернет.');
-      });
+      } catch (error) {
+        console.error('Ошибка:', error);
+        alert('❌ Ошибка сети. Проверьте интернет и попробуйте ещё раз.');
+      } finally {
+        submitBtn.disabled = false;
+        loading.style.display = 'none';
+      }
     });
   </script>
 </body>
